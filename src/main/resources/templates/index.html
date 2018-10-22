@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>J316 Zeilensteuerung</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <link rel="stylesheet" href="/bootstrap.min.css" media="screen"/>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1>Zeilensteuerung</h1>
+            <form action="#" th:action="@{/}" th:object="${cellOperation}" method="post" class="form">
+                <div class="form-group">
+                    <label for="sendValue">Status: <span th:text="${status}"></span></label>
+                    <input id="sendValue" th:field="*{sendValue}" class="form-control" type="text"
+                           placeholder="Default input">
+                </div>
+                <button type="submit" name="action" class="btn btn-success" value="send">Senden</button>
+                <button type="submit" name="action" class="btn btn-info" value="clear">Leeren</button>
+            </form>
+        </div>
+    </div>
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="alert alert-info" role="alert">
+                <span th:text="${result}"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
