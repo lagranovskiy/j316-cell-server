@@ -1,5 +1,6 @@
-package org.j316.cellserver.com;
+package org.j316.cellserver.adapter;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,10 +12,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 
 @Component
-public class CellCom {
+public class ChoranzeigeCommunicationPort {
 
     @Value("${cell.ip}")
     private String ip;
@@ -56,11 +56,11 @@ public class CellCom {
             retVal.append("\n Zeitüberschreitung.. sorry");
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host: " + ip);
-            retVal.append("\n Don't know about host: " + ip);
+            retVal.append("\n Don't know about host: ").append(ip);
             e.printStackTrace();
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for the connection to: " + ip);
-            retVal.append("\n Couldn't get I/O for the connection to: " + ip);
+            retVal.append("\n Couldn't get I/O for the connection to: ").append(ip);
             e.printStackTrace();
         }
 
@@ -76,7 +76,7 @@ public class CellCom {
         };
 
         byte[] sendMSG = ArrayUtils.addAll(INITPACKET, TEXTFILE);
-        sendMSG = ArrayUtils.addAll(sendMSG, msg.getBytes(Charset.forName("US-ASCII")));
+        sendMSG = ArrayUtils.addAll(sendMSG, msg.getBytes(StandardCharsets.US_ASCII));
         sendMSG = ArrayUtils.addAll(sendMSG, FTX, FTX);
         String retVal = send(sendMSG);
 
@@ -105,15 +105,15 @@ public class CellCom {
             retVal.append("\n Zeitüberschreitung.. sorry");
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host: " + ip);
-            retVal.append("\n Don't know about host: " + ip);
+            retVal.append("\n Don't know about host: ").append(ip);
             e.printStackTrace();
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for the connection to: " + ip);
-            retVal.append("\n Couldn't get I/O for the connection to: " + ip);
+            retVal.append("\n Couldn't get I/O for the connection to: ").append(ip);
             e.printStackTrace();
         }
 
-        if (rowSocket != null && os != null && is != null) {
+        if (os != null && is != null) {
             try {
 
                 os.write(frame);

@@ -1,35 +1,43 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>J316 Zeilensteuerung</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>J316 Zeilensteuerung</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="/bootstrap.min.css" media="screen"/>
 </head>
 <body>
 <div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <h1>Zeilensteuerung</h1>
-            <form action="#" th:action="@{/}" th:object="${cellOperation}" method="post" class="form">
-                <div class="form-group">
-                    <label for="sendValue">Status: <span th:text="${status}"></span></label>
-                    <input id="sendValue" th:field="*{sendValue}" class="form-control" type="text"
-                           placeholder="Default input">
-                </div>
-                <button type="submit" name="action" class="btn btn-success" value="send">Senden</button>
-                <button type="submit" name="action" class="btn btn-info" value="clear">Leeren</button>
-            </form>
-        </div>
-    </div>
-    <div class="row">&nbsp;</div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="alert alert-info" role="alert">
-                <span th:text="${result}"></span>
+  <div class="row">
+    <div class="col">
+      <h1>Steuerung der Choranzeige</h1>
+
+      <form action="#" th:action="@{/}" th:object="${cellOperation}" method="post" class="form form-group">
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <input id="sendValue" th:field="*{sendValue}" class="form-control" type="text">
             </div>
+          </div>
         </div>
+        <div class="row">
+          <div class="d-grid gap-2 col mx-auto">
+            <button type="submit" name="action" class="btn btn-success" value="send">Senden</button>
+            <button type="submit" name="action" class="btn btn-info" value="clear">Leeren</button>
+          </div>
+        </div>
+
+      </form>
     </div>
+  </div>
+
+  <div class="col fixed-bottom">
+    <div class="alert alert-info" role="alert">
+      <span th:text="${status}"></span>
+      <span th:text="${result}"></span>
+    </div>
+  </div>
 </div>
 
 </body>
