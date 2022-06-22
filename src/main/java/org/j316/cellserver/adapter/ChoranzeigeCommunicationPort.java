@@ -16,13 +16,13 @@ import java.net.UnknownHostException;
 @Component
 public class ChoranzeigeCommunicationPort {
 
-    @Value("${cell.ip}")
+    @Value("${adapter.cell.ip}")
     private String ip;
 
-    @Value("${cell.port}")
+    @Value("${adapter.cell.port}")
     private Integer port;
 
-    @Value("${cell.connection.timeout}")
+    @Value("${adapter.cell.connection.timeout}")
     private Integer timeout;
 
     private final static byte STX = (byte) 0x00;

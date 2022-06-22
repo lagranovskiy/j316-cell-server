@@ -9,7 +9,12 @@ spring:
 server:
   port: 8081
 
-cell:
-  ip: 192.168.0.248
-  port: 5005
-  connection.timeout: 1000
+adapter:
+  cell:
+    ip: 192.168.0.248
+    port: 5005
+    connection.timeout: 1000
+
+  security:
+    username: test
+    password: test
