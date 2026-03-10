@@ -45,7 +45,7 @@ class CellResourceTest {
     requestOperation.setSendValue("Test");
     when(communicationPort.sendTxt("Test")).thenReturn("ok");
 
-    String viewName = resource.sendMessage(requestOperation, model);
+    String viewName = resource.sendMessage(requestOperation, model, null);
 
     assertEquals("index", viewName);
     assertEquals("Test", sharedOperation.getSendValue());

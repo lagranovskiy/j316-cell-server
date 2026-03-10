@@ -7,10 +7,24 @@ spring:
 
   security:
     oauth2:
+      client:
+        registration:
+          auth0:
+            provider: auth0
+            client-id: ${AUTH0_CLIENT_ID:}
+            client-secret: ${AUTH0_CLIENT_SECRET:}
+            scope:
+              - openid
+              - profile
+              - email
+
+        provider:
+          auth0:
+            issuer-uri: ${AUTH0_ISSUER_URI:https://christen-frankfurt/}
+
       resourceserver:
         jwt:
-          issuer-uri: ${AUTH0_ISSUER_URI:}
-
+          issuer-uri: https://christen-frankfurt.eu.auth0.com/
 server:
   port: 8081
   servlet:
@@ -20,16 +34,15 @@ server:
       cookie:
         max-age: 360m
         name: chorzeile
-        comment: session authentification for chorzeile
 
 adapter:
   cell:
-    ip: 192.168.0.248
+    ip: localhost
     port: 5005
     connection.timeout: 1000
 
   security:
     username: ${BASIC_AUTH_USERNAME:test}
     password: ${BASIC_AUTH_PASSWORD:test}
-    oauth2:
-      enabled: ${OAUTH2_ENABLED:false}
+    auth0:
+      enabled: ${AUTH0_ENABLED:true}

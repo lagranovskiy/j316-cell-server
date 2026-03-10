@@ -81,13 +81,12 @@
         <div class="card-body p-4 p-md-5">
           <span class="hero-chip">J316 Control Center</span>
           <h1 class="h3 fw-bold mb-2">Zeilensteuerung der Choranzeige</h1>
-          <p class="text-secondary mb-4">Steuern Sie die Anzeige direkt aus dem Browser. Das Layout ist für Desktop,
-            Tablet und Smartphone optimiert.</p>
+          <p class="text-secondary mb-4">Bitte geben Sie den Text ein</p>
 
           <form th:action="@{/}" th:object="${cellOperation}" method="post" class="needs-validation" novalidate>
             <label for="sendValue" class="form-label fw-semibold">Anzeigetext</label>
             <div class="input-group input-group-lg mb-3">
-              <span class="input-group-text">TXT</span>
+              <span class="input-group-text">Text</span>
               <input id="sendValue" th:field="*{sendValue}" class="form-control" type="text"
                      placeholder="z. B. Probe beginnt um 19:30" maxlength="120" required>
             </div>

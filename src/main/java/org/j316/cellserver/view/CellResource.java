@@ -2,6 +2,8 @@ package org.j316.cellserver.view;
 
 import org.j316.cellserver.adapter.ChoranzeigeCommunicationPort;
 import org.j316.cellserver.view.binding.CellOperation;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +29,7 @@ public class CellResource {
   }
 
   @PostMapping(value = "/", params = "action=send")
-  public String sendMessage(@ModelAttribute CellOperation cellOperation, Model model) {
+  public String sendMessage(@ModelAttribute CellOperation cellOperation, Model model, @AuthenticationPrincipal OAuth2User user) {
     operation.setSendValue(cellOperation.getSendValue());
     model.addAttribute("cellOperation", operation);
     model.addAttribute("result", cellCom.sendTxt(cellOperation.getSendValue()));
