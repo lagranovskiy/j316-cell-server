@@ -1,11 +1,15 @@
 package org.j316.cellserver.configuration;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -36,6 +41,9 @@ public class SecurityConfiguration {
   @Value("${adapter.security.auth0.enabled:false}")
   private boolean oauth2Enabled;
 
+  @Value("${adapter.security.auth0.audience:cell-control-api}")
+  private String apiAudience;
+
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
@@ -45,7 +53,11 @@ public class SecurityConfiguration {
   public SecurityFilterChain filterChain(HttpSecurity http) {
     http
         .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.POST, "/").hasAnyAuthority(
+                "PERMISSION_display:write", "ROLE_CELL_ADMIN", "ROLE_USER")
+            .anyRequest().authenticated()
+        );
 
     if (oauth2LoginConfigured()) {
       http.oauth2Login(Customizer.withDefaults());
@@ -65,23 +77,37 @@ public class SecurityConfiguration {
     return oauth2Enabled;
   }
 
-
   @Bean
   JwtAuthenticationConverter jwtAuthenticationConverter() {
     JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-    converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-      Collection<GrantedAuthority> authorities = new ArrayList<>();
-      List<String> roles = jwt.getClaimAsStringList(
-          "https://j316-cell-server/roles"
-      );
-      if (roles != null) {
-        roles.forEach(role ->
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+    converter.setJwtGrantedAuthoritiesConverter(this::extractAuth0Authorities);
+    return converter;
+  }
+
+  private Collection<GrantedAuthority> extractAuth0Authorities(Jwt jwt) {
+    Set<GrantedAuthority> authorities = new HashSet<>();
+
+    if (tokenTargetsConfiguredAudience(jwt)) {
+      List<String> permissions = jwt.getClaimAsStringList("permissions");
+      if (permissions != null) {
+        permissions.forEach(permission ->
+            authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission))
         );
       }
-      return authorities;
-    });
-    return converter;
+    }
+
+    List<String> roles = jwt.getClaimAsStringList("https://j316-cell-server/roles");
+    if (roles != null) {
+      roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase())));
+    }
+
+    return authorities;
+  }
+
+  private boolean tokenTargetsConfiguredAudience(Jwt jwt) {
+    return jwt.getAudience().stream()
+        .filter(Objects::nonNull)
+        .anyMatch(audience -> audience.equals(apiAudience));
   }
 
   @Bean
@@ -94,6 +120,7 @@ public class SecurityConfiguration {
   }
 
   @Bean
+  @ConditionalOnProperty(name = "adapter.security.auth0.enabled", havingValue = "true")
   public OAuth2AuthorizationRequestResolver authorizationRequestResolver(
       ClientRegistrationRepository repo) {
 
@@ -101,9 +128,8 @@ public class SecurityConfiguration {
         new DefaultOAuth2AuthorizationRequestResolver(repo, "/oauth2/authorization");
 
     resolver.setAuthorizationRequestCustomizer(builder ->
-        builder.additionalParameters(params ->
-            params.put("audience", "cell-control-api")
-        ));
+        builder.additionalParameters(params -> params.put("audience", apiAudience))
+    );
 
     return resolver;
   }

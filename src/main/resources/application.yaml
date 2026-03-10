@@ -11,8 +11,10 @@ spring:
         registration:
           auth0:
             provider: auth0
-            client-id: ${AUTH0_CLIENT_ID:}
-            client-secret: ${AUTH0_CLIENT_SECRET:}
+            client-id: ${AUTH0_CLIENT_ID:dummy-client-id}
+            client-secret: ${AUTH0_CLIENT_SECRET:dummy-client-secret}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope:
               - openid
               - profile
@@ -20,11 +22,15 @@ spring:
 
         provider:
           auth0:
-            issuer-uri: ${AUTH0_ISSUER_URI:https://christen-frankfurt/}
+            authorization-uri: ${AUTH0_AUTHORIZATION_URI:https://christen-frankfurt.eu.auth0.com/authorize}
+            token-uri: ${AUTH0_TOKEN_URI:https://christen-frankfurt.eu.auth0.com/oauth/token}
+            user-info-uri: ${AUTH0_USER_INFO_URI:https://christen-frankfurt.eu.auth0.com/userinfo}
+            jwk-set-uri: ${AUTH0_JWK_SET_URI:https://christen-frankfurt.eu.auth0.com/.well-known/jwks.json}
+            user-name-attribute: sub
 
       resourceserver:
         jwt:
-          issuer-uri: https://christen-frankfurt.eu.auth0.com/
+          issuer-uri: ${AUTH0_ISSUER_URI:https://christen-frankfurt.eu.auth0.com/}
 server:
   port: 8081
   servlet:
@@ -45,4 +51,5 @@ adapter:
     username: ${BASIC_AUTH_USERNAME:test}
     password: ${BASIC_AUTH_PASSWORD:test}
     auth0:
-      enabled: ${AUTH0_ENABLED:true}
+      enabled: ${AUTH0_ENABLED:false}
+      audience: ${AUTH0_AUDIENCE:cell-control-api}
