@@ -2,60 +2,43 @@ package org.j316.cellserver.view;
 
 import org.j316.cellserver.adapter.ChoranzeigeCommunicationPort;
 import org.j316.cellserver.view.binding.CellOperation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class CellResource {
 
-  @Autowired
-  private ChoranzeigeCommunicationPort cellCom;
+  private final ChoranzeigeCommunicationPort cellCom;
+  private final CellOperation operation;
 
-  @Autowired
-  private CellOperation operation;
+  public CellResource(ChoranzeigeCommunicationPort cellCom, CellOperation operation) {
+    this.cellCom = cellCom;
+    this.operation = operation;
+  }
 
   @GetMapping("/")
   public String init(Model model) {
-    String pingResult = cellCom.ping();
     model.addAttribute("cellOperation", operation);
-    model.addAttribute("result", pingResult);
+    model.addAttribute("result", cellCom.ping());
     return "index";
   }
 
-
-  @RequestMapping(value = "/", method = RequestMethod.POST, params = "action=send")
-  public String sendMessage(
-      @ModelAttribute CellOperation cellOperation,
-      @RequestParam(value = "action", required = true) String action,
-      Model model) {
-    this.operation.setSendValue(cellOperation.getSendValue());
-
-    String result = cellCom.sendTxt(cellOperation.getSendValue());
+  @PostMapping(value = "/", params = "action=send")
+  public String sendMessage(@ModelAttribute CellOperation cellOperation, Model model) {
+    operation.setSendValue(cellOperation.getSendValue());
     model.addAttribute("cellOperation", operation);
-    model.addAttribute("result", result);
-
+    model.addAttribute("result", cellCom.sendTxt(cellOperation.getSendValue()));
     return "index";
   }
 
-  @RequestMapping(value = "/", method = RequestMethod.POST, params = "action=clear")
-  public String clearMessage(
-      @ModelAttribute CellOperation cellOperation,
-      @RequestParam(value = "action", required = true) String action,
-      Model model) {
-    this.operation.setSendValue("");
-
-    String result = cellCom.clear();
-
+  @PostMapping(value = "/", params = "action=clear")
+  public String clearMessage(Model model) {
+    operation.setSendValue("");
     model.addAttribute("cellOperation", operation);
-    model.addAttribute("result", result);
-
+    model.addAttribute("result", cellCom.clear());
     return "index";
   }
 }
