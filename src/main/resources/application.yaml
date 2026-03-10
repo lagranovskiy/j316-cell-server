@@ -31,5 +31,5 @@ adapter:
   security:
     username: ${BASIC_AUTH_USERNAME:test}
     password: ${BASIC_AUTH_PASSWORD:test}
-    auth0:
-      enabled: ${AUTH0_ENABLED:false}
+    oauth2:
+      enabled: ${OAUTH2_ENABLED:false}

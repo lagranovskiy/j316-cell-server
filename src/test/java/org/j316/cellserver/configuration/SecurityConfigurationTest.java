@@ -1,5 +1,6 @@
 package org.j316.cellserver.configuration;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,5 +35,20 @@ class SecurityConfigurationTest {
     assertNotNull(user);
     assertTrue(passwordEncoder.matches("pass123", user.getPassword()));
     assertTrue(user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
+  }
+
+  @Test
+  void oauth2LoginConfiguredReturnsTrueOnlyWithCompleteOktaSettings() {
+    SecurityConfiguration configuration = new SecurityConfiguration();
+    ReflectionTestUtils.setField(configuration, "oauth2Enabled", true);
+    ReflectionTestUtils.setField(configuration, "oauth2IssuerUri", "https://dev-12345.okta.com/oauth2/default");
+    ReflectionTestUtils.setField(configuration, "oauth2ClientId", "client-id");
+    ReflectionTestUtils.setField(configuration, "oauth2ClientSecret", "client-secret");
+
+    assertTrue(configuration.oauth2LoginConfigured());
+
+    ReflectionTestUtils.setField(configuration, "oauth2ClientSecret", "");
+
+    assertFalse(configuration.oauth2LoginConfigured());
   }
 }

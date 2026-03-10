@@ -7,13 +7,16 @@ This application is designed as a simple webserver running on the network node a
 The server supports two authentication methods:
 
 - HTTP Basic auth (always enabled) via `adapter.security.username` and `adapter.security.password`
-- Auth0 JWT Bearer auth (optional) via Spring OAuth2 resource server
+- OAuth2/OIDC Login via Okta (optional) using Spring Security `oauth2Login` (similar to the Auth0/Okta login sample approach)
 
-### Auth0 configuration
+### Okta OAuth2 configuration
 
-Set the following environment variables to enable Auth0:
+Set the following environment variables to enable OAuth2 login via Okta:
 
-- `AUTH0_ENABLED=true`
-- `AUTH0_ISSUER_URI=https://<your-tenant>.auth0.com/`
+- `OAUTH2_ENABLED=true`
+- `OKTA_ISSUER_URI=https://<your-okta-domain>/oauth2/default`
+- `OKTA_CLIENT_ID=<your-client-id>`
+- `OKTA_CLIENT_SECRET=<your-client-secret>`
 
-When Auth0 is enabled and an issuer URI is provided, bearer tokens signed by Auth0 are accepted in addition to HTTP Basic authentication.
+When all values are configured, Spring Security enables OAuth2 login and accepts authenticated user sessions from the OIDC provider.
+HTTP Basic authentication remains available in parallel.
