@@ -5,6 +5,12 @@ spring:
   application:
     name: j316-cell
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH0_ISSUER_URI:}
+
 server:
   port: 8081
   servlet:
