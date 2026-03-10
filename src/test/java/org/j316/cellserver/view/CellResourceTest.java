@@ -30,7 +30,7 @@ class CellResourceTest {
     Model model = new ExtendedModelMap();
     when(communicationPort.ping()).thenReturn("connected");
 
-    String viewName = resource.init(model);
+    String viewName = resource.init(model, null);
 
     assertEquals("index", viewName);
     assertEquals(sharedOperation, model.getAttribute("cellOperation"));

@@ -22,7 +22,7 @@ public class CellResource {
   }
 
   @GetMapping("/")
-  public String init(Model model) {
+  public String init(Model model, @AuthenticationPrincipal OAuth2User user) {
     model.addAttribute("cellOperation", operation);
     model.addAttribute("result", cellCom.ping());
     return "index";
