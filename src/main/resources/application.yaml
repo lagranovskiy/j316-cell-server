@@ -23,5 +23,7 @@ adapter:
     connection.timeout: 1000
 
   security:
-    username: test
-    password: test
+    username: ${BASIC_AUTH_USERNAME:test}
+    password: ${BASIC_AUTH_PASSWORD:test}
+    oauth2:
+      enabled: ${OAUTH2_ENABLED:false}

@@ -20,6 +20,13 @@ public class ChoranzeigeCommunicationPort {
   private static final byte STX = (byte) 0x00;
   private static final byte FTX = (byte) 0xff;
 
+  private static final String PING_TIMEOUT_MESSAGE =
+      "Verbindung zur Choranzeige konnte innerhalb des konfigurierten Timeouts nicht aufgebaut werden.";
+  private static final String SEND_TIMEOUT_MESSAGE =
+      "Senden abgebrochen: Verbindungsaufbau hat das konfigurierte Timeout überschritten.";
+  private static final String CONNECTED_MESSAGE = "Verbindung zur Choranzeige aufgebaut.";
+  private static final String SEND_SUCCESS_MESSAGE = "Datenpaket erfolgreich übertragen.";
+
   private static final byte[] INIT_PACKET = new byte[] {
       STX, FTX, FTX, (byte) 0x01,
       0x0b, 0x01, FTX
@@ -50,22 +57,21 @@ public class ChoranzeigeCommunicationPort {
       return socket.isConnected() ? "connected" : "not connected";
     } catch (SocketTimeoutException ex) {
       log.warn("Timeout while pinging {}:{}", ip, port, ex);
-      return "Zeitüberschreitung.. sorry";
+      return PING_TIMEOUT_MESSAGE;
     } catch (IOException ex) {
       log.warn("I/O error while pinging {}:{}", ip, port, ex);
-      return "Couldn't get I/O for the connection to: " + ip;
+      return String.format("Verbindungsprüfung fehlgeschlagen (I/O-Fehler). Ziel: %s", ip);
     }
   }
 
   public String sendTxt(String msg) {
-    byte[] frame = buildFrame(msg);
-    String result = send(frame);
+    SendResult sendResult = send(buildFrame(msg));
 
-    if (!msg.isEmpty()) {
-      result = result + "\n Text sent: " + msg;
+    if (!msg.isEmpty() && sendResult.success()) {
+      return sendResult.message() + "\nÜbertragener Text: " + msg;
     }
 
-    return result;
+    return sendResult.message();
   }
 
   private byte[] buildFrame(String msg) {
@@ -78,12 +84,9 @@ public class ChoranzeigeCommunicationPort {
     return frame.toByteArray();
   }
 
-  public String send(byte[] frame) {
-    StringBuilder retVal = new StringBuilder();
-
+  public SendResult send(byte[] frame) {
     try (Socket socket = new Socket()) {
       socket.connect(new InetSocketAddress(ip, port), timeout);
-      retVal.append("\n Connection ok.");
 
       try (DataOutputStream os = new DataOutputStream(socket.getOutputStream())) {
         os.write(frame);
@@ -91,15 +94,17 @@ public class ChoranzeigeCommunicationPort {
         os.flush();
       }
 
-      retVal.append("\n Fertig.");
+      return new SendResult(true, CONNECTED_MESSAGE + "\n" + SEND_SUCCESS_MESSAGE);
     } catch (SocketTimeoutException ex) {
       log.warn("Timeout while sending data to {}:{}", ip, port, ex);
-      retVal.append("\n Zeitüberschreitung.. sorry");
+      return new SendResult(false, SEND_TIMEOUT_MESSAGE);
     } catch (IOException ex) {
       log.warn("I/O error while sending data to {}:{}", ip, port, ex);
-      retVal.append("\n Couldn't get I/O for the connection to: ").append(ip);
+      return new SendResult(false,
+          String.format("Senden fehlgeschlagen (I/O-Fehler). Ziel: %s", ip));
     }
+  }
 
-    return retVal.toString();
+  public record SendResult(boolean success, String message) {
   }
 }
