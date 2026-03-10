@@ -2,6 +2,7 @@ package org.j316.cellserver.adapter;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -56,8 +57,8 @@ class ChoranzeigeCommunicationPortTest {
 
       String result = port.clear();
 
-      assertTrue(result.contains("Connection ok."));
-      assertTrue(result.contains("Fertig."));
+      assertTrue(result.contains("Verbindung zur Choranzeige aufgebaut."));
+      assertTrue(result.contains("Datenpaket erfolgreich übertragen."));
       assertTrue(latch.await(2, TimeUnit.SECONDS));
       assertArrayEquals(expectedFrame(""), received.get());
       serverThread.join(1000);
@@ -84,13 +85,23 @@ class ChoranzeigeCommunicationPortTest {
 
       String result = port.sendTxt("HALLO");
 
-      assertTrue(result.contains("Connection ok."));
-      assertTrue(result.contains("Fertig."));
-      assertTrue(result.contains("Text sent: HALLO"));
+      assertTrue(result.contains("Verbindung zur Choranzeige aufgebaut."));
+      assertTrue(result.contains("Datenpaket erfolgreich übertragen."));
+      assertTrue(result.contains("Übertragener Text: HALLO"));
       assertTrue(latch.await(2, TimeUnit.SECONDS));
       assertArrayEquals(expectedFrame("HALLO"), received.get());
       serverThread.join(1000);
     }
+  }
+
+  @Test
+  void sendTxtDoesNotAppendTextOnConnectionFailure() {
+    ChoranzeigeCommunicationPort port = new ChoranzeigeCommunicationPort();
+    configure(port, "127.0.0.1", 1, 100);
+
+    String result = port.sendTxt("HALLO");
+
+    assertFalse(result.contains("Übertragener Text: HALLO"));
   }
 
   @Test
@@ -100,7 +111,7 @@ class ChoranzeigeCommunicationPortTest {
 
     String result = port.ping();
 
-    assertEquals("Couldn't get I/O for the connection to: 127.0.0.1", result);
+    assertEquals("Verbindungsprüfung fehlgeschlagen (I/O-Fehler). Ziel: 127.0.0.1", result);
   }
 
   private static void configure(ChoranzeigeCommunicationPort port, String ip, int endpointPort,
@@ -116,9 +127,6 @@ class ChoranzeigeCommunicationPortTest {
     int read;
     while ((read = inputStream.read(buffer)) != -1) {
       outputStream.write(buffer, 0, read);
-      if (inputStream.available() == 0) {
-        break;
-      }
     }
     return outputStream.toByteArray();
   }
