@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.util.StringUtils;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +23,12 @@ public class SecurityConfiguration {
 
   @Value("${adapter.security.password}")
   private String password;
+
+  @Value("${adapter.security.auth0.enabled:false}")
+  private boolean auth0Enabled;
+
+  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
+  private String auth0IssuerUri;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -34,6 +41,10 @@ public class SecurityConfiguration {
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
         .httpBasic(Customizer.withDefaults());
+
+    if (auth0Enabled && StringUtils.hasText(auth0IssuerUri)) {
+      http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+    }
 
     return http.build();
   }

@@ -5,6 +5,12 @@ spring:
   application:
     name: j316-cell
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH0_ISSUER_URI:}
+
 server:
   port: 8081
   servlet:
@@ -23,5 +29,7 @@ adapter:
     connection.timeout: 1000
 
   security:
-    username: test
-    password: test
+    username: ${BASIC_AUTH_USERNAME:test}
+    password: ${BASIC_AUTH_PASSWORD:test}
+    auth0:
+      enabled: ${AUTH0_ENABLED:false}
