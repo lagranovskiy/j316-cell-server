@@ -1,0 +1,55 @@
+replicaCount: 1
+
+image:
+  repository: j316/cell-server
+  tag: local
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8081
+
+ingress:
+  enabled: true
+  className: nginx
+  host: cell-server.127.0.0.1.nip.io
+  annotations: {}
+  tls:
+    enabled: true
+    secretName: cell-server-tls
+
+certManager:
+  enabled: true
+  clusterIssuer:
+    name: letsencrypt-prod
+    email: admin@example.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+  certificate:
+    duration: 2160h # 90 days
+    renewBefore: 360h # 15 days
+
+env:
+  BASIC_AUTH_USERNAME: test
+  BASIC_AUTH_PASSWORD: test
+  AUTH0_ENABLED: "false"
+  AUTH0_CLIENT_ID: dummy-client-id
+  AUTH0_CLIENT_SECRET: dummy-client-secret
+  AUTH0_AUTHORIZATION_URI: https://christen-frankfurt.eu.auth0.com/authorize
+  AUTH0_TOKEN_URI: https://christen-frankfurt.eu.auth0.com/oauth/token
+  AUTH0_USER_INFO_URI: https://christen-frankfurt.eu.auth0.com/userinfo
+  AUTH0_JWK_SET_URI: https://christen-frankfurt.eu.auth0.com/.well-known/jwks.json
+  AUTH0_AUDIENCE: cell-control-api
+  ADAPTER_CELL_IP: host.docker.internal
+  ADAPTER_CELL_PORT: "5005"
+  ADAPTER_CELL_CONNECTION_TIMEOUT: "1000"
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
