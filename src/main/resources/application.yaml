@@ -22,10 +22,8 @@ spring:
 
         provider:
           auth0:
-            authorization-uri: ${AUTH0_AUTHORIZATION_URI:https://christen-frankfurt.eu.auth0.com/authorize}
-            token-uri: ${AUTH0_TOKEN_URI:https://christen-frankfurt.eu.auth0.com/oauth/token}
-            user-info-uri: ${AUTH0_USER_INFO_URI:https://christen-frankfurt.eu.auth0.com/userinfo}
-            jwk-set-uri: ${AUTH0_JWK_SET_URI:https://christen-frankfurt.eu.auth0.com/.well-known/jwks.json}
+            issuer-uri: ${AUTH0_ISSUER_URI:https://christen-frankfurt.eu.auth0.com/}
+            user-name-attribute: preferred_username
 server:
   port: 8081
   servlet:
