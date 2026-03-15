@@ -23,7 +23,7 @@ spring:
         provider:
           auth0:
             issuer-uri: ${AUTH0_ISSUER_URI:https://christen-frankfurt.eu.auth0.com/}
-            user-name-attribute: preferred_username
+            user-name-attribute: sub
 server:
   port: 8081
   servlet:
